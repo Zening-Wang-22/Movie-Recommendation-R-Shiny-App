@@ -1,6 +1,7 @@
 # 🎬 Movie Recommendation App
 
 An interactive R Shiny app for discovering movies through content-based recommendations. Start with a movie you enjoy or choose an actor, genre, and director. Explore the results, try a random pick, and listen to background music while browsing.
+
 **Built with:** R · Shiny · text2vec  
 **Methods:** Text preprocessing · TF-IDF · Cosine similarity
 
