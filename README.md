@@ -1,39 +1,90 @@
-Movie Recommendation Shiny App
------------
-This script is designed to recommend the five best movies based on user preferences, such as favorite movie or favorite actor/actress/director/genre, using content-based modeling in the Shiny app.
+# 🎬 Movie Recommendation App
 
-## Introduction
+An interactive R Shiny app for finding movies based on a favorite title or a combination of genre, actor, and director preferences. The app uses TF-IDF representations of movie metadata and cosine similarity to generate recommendations.
 
-### App overview and how to use the app
+**Built with:** R · Shiny · text2vec  
+**Methods:** Text preprocessing · TF-IDF · Cosine similarity
 
-All the data are stored in a file named "movies.csv". At the beginning of the Shiny app, we use the `source` function to run the code in "movie_recommend_model.R", which loads the data from "movies.csv" and implements the model for this movie recommendation Shiny app (note that it takes about 20-30 seconds to run "movie_recommend_model.R"). Upon opening the app, users are greeted with an engaging opening animation and selectable background music, offering various styles such as love, discovery, suspense, and joy to suit different moods. The music can be paused or resumed at any time. The app is divided into two main sections, accessible through tab panels at the top: "Recommend by Previously Watched Movie" and "Recommend by Genres/Actors/Directors". Recognizing that people seek movie recommendations in different ways, the app contains two models: one for suggesting movies similar to those previously enjoyed, and another for recommendations based on favorite genres, actors, or directors. Users can seamlessly switch between these models using the panels at the top.
+<!-- Add a screenshot of the app showing recommendation results here. -->
 
-After inputting their favorite movie or movie traits, users can get recommendations by clicking the "Recommend" button. Both recommendation methods run smoothly without any waiting time. We have also added a "random movie button" (luck draw) for users’ entertainment. It generates a random movie and provides a brief overview, with an option to learn more about the movie by clicking the 'Learn more' button.
+## Features
 
-Once the five movie recommendations are available, users are encouraged to click on each movie title for detailed information, presented in modal dialogs that include the director, cast, genre, release date, and more. Additionally, clickable green fonts provide links for further exploration. Specific details, such as the director, cast, genres, and homepage link (if applicable), are available to click on. Clicking on the director or cast name provides users with other movies by the same director or cast. Clicking on the genres suggests random movies in that specific genre for further exploration. Movie homepage links are also provided, with a note in the app notifying users that some homepages might be outdated due to dataset limitations. The background of the modal dialog is randomly chosen from a group of delightful images, enhancing the user experience. Finally, the Shiny app is accessed through a browser, and users need to press the stop button in RStudio to terminate the app after closing the browser tab. With these features, the app aims to provide an efficient and enjoyable movie recommendation experience.
+- **Find similar movies:** Select a movie to receive five recommendations based on its metadata.
+- **Explore your preferences:** Combine a genre, actor, and director to find matching movies.
+- **Browse movie details:** Click a recommendation to view its synopsis, cast, director, and release information.
+- **Discover something unexpected:** Use the Lucky Draw button to explore a randomly selected movie.
 
-## Methods / Implementation
+The interface also includes selectable background music and links for exploring movies by cast, director, or genre.
 
-### Data cleaning
+## Run locally
 
-The first step in our process is data cleaning. Initially, the script reads in "movies.csv" and defines a function `movie_top_n` to extract top movies based on parameters like popularity, revenue, vote average, and vote count. Additionally, it incorporates functions to remove Unicode characters and stop words from the movie data.
+The current application is intended to run from RStudio.
 
-Subsequently, the script generates a subset of the movie dataset, named "movies_data", which includes the top 1000 movies. It then selects specific features such as genres, keywords, taglines, cast, and director. Text processing functions are applied to clean and preprocess this data.
+1. Download or clone this repository.
+2. Open `project.Rproj` in RStudio.
+3. Install the packages used by the application and recommendation script:
 
-The next phase involves transforming the character data into numeric values. For this purpose, we use a TF-IDF (Term Frequency-Inverse Document Frequency) vectorizer. The resulting TF-IDF matrix is instrumental in calculating the cosine similarity between movies. This calculation leads to the creation of a similarity matrix. The similarity matrix is a 1000x1000 symmetric matrix, containing the similarity scores of each movie with every other movie in the dataset.
+```r
+install.packages(c(
+  "shiny", "shinyWidgets", "shinythemes",
+  "superml", "dplyr", "stringr", "proxy",
+  "stringdist", "tm", "ggplot2", "tidyverse",
+  "tidyr", "purrr", "stringi", "clue", "text2vec"
+))
+```
 
-### Models building
-Our process begins with the movie recommendation function, designed to suggest films based on a user's input of their favorite movie. The function `recommend_movies` achieves this by identifying the closest match in the dataset, retrieving that movie's similarity score with other films, and then ranking these scores to select the six most similar movies. The core logic involves using a similarity score matrix for movies, selecting scores associated with a specific movie, sorting these scores to find the most similar movies, and finally returning the top recommendations, excluding the original movie from the list. The reason for retrieving the top six movies is to ensure the original movie, if it appears in the top ranks, is removed, leaving five distinct recommendations based on the user's previously enjoyed movies.
+4. Open `shiny.R` and click **Run App**.
 
-In addition to this, we have developed another model for movie recommendations based on genre, actor, and director. The function `recommend_movies_b` recommends movies based on a user’s combination of preferred genre, actor, and director. It treats the user's input as a new, hypothetical "dream movie" in the dataset, encompassing all the user's favorite characteristics. The model calculates TF-IDF vectors and assesses the similarity of the "dream movie" to all other movies in the dataset. To enhance run-time efficiency, instead of computing the entire 1001x1001 similarity matrix, which would take approximately 15 seconds, we calculate only the last column/row, representing the similarity scores of the "dream movie" to the other 1000 movies. We then rank these similarity scores and identify the top 5 movies with the highest similarity to the "dream movie". This approach enables us to recommend the five most suitable movies to users based on their preferred genre, actor, and director.
+Keep the working directory at the repository root so the app can find `movies.csv` and `movie_recommend_model.R`.
 
+The model is built when the app starts, so the initial launch may take some time. Some visual assets are loaded from external websites and require an internet connection.
 
-## Discussion & Conclusion
+## How it works
 
-This script lays the groundwork for building a personalized movie recommendation system. It allows users to input their preferences, and in response, the system generates relevant movie suggestions based on textual features and similarity analysis. The script’s versatility makes it adaptable for various datasets and recommendation scenarios.
+### Movie representation
 
-We have integrated the models into a Shiny app, enhancing it with additional features such as an opening animation, background music, and modal dialogs. These elements enable users to further explore the recommended movies, with the aim of creating a smooth, efficient, and entertaining experience within our movie recommendation Shiny app.
+The recommendation pipeline selects a subset of 1,000 movies using the ranking function in `movie_recommend_model.R`. It combines five metadata fields:
 
-One potential area for improvement involves grouping similar actors and directors to refine the suggestion model. Additionally, we are considering the integration of filtering techniques with similarity score computation, forming a hybrid method to better match movies with users' inputs.
+- Genres
+- Keywords
+- Tagline
+- Cast
+- Director
 
-Regarding the Shiny app's technical aspects, we have noticed a warning regarding the large number of options in dropdown menus. However, we have chosen to ignore this warning as it does not significantly impact the model's ability to identify specific options and recommend movies accordingly. It's also worth noting that the Shiny app takes approximately 20 seconds to launch when run directly. This delay is due to the necessity of running the model first, which includes calculating the similarity matrix.
+The text is cleaned and converted into TF-IDF vectors, which weight terms according to their frequency within a movie's metadata and across the collection.
+
+### Recommendations by movie
+
+The app compares the selected movie with other titles using cosine similarity between their TF-IDF vectors. It ranks the results and returns five recommendations, excluding the selected title.
+
+### Recommendations by preferences
+
+The app combines the selected genre, actor, and director into a text query. In the current implementation, it fits TF-IDF to the movie collection together with this query, then ranks movies by their similarity to the query.
+
+These preferences contribute to the similarity score rather than acting as strict filters.
+
+## Repository structure
+
+```text
+.
+├── shiny.R                  # Shiny interface and server logic
+├── movie_recommend_model.R  # Data preparation and recommendation functions
+├── movies.csv               # Movie metadata
+├── project.Rproj            # RStudio project
+├── www/                     # Local audio assets
+└── README.md
+```
+
+## Limitations and next steps
+
+The recommendations reflect similarities in movie metadata rather than predictions of individual user ratings. Results are limited to the selected movie collection and depend on the completeness of its metadata.
+
+Potential improvements include:
+
+- Evaluating recommendation quality against a simple baseline.
+- Reusing fitted text representations to reduce repeated computation.
+- Removing fixed dataset-size assumptions from the recommendation functions.
+- Improving handling of missing metadata and ambiguous movie titles.
+- Reducing reliance on externally hosted images.
+
+Some movie homepage links may also be outdated.
