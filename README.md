@@ -1,28 +1,61 @@
 # 🎬 Movie Recommendation App
 
-An interactive R Shiny app for finding movies based on a favorite title or a combination of genre, actor, and director preferences. The app uses TF-IDF representations of movie metadata and cosine similarity to generate recommendations.
-
+An interactive R Shiny app for discovering movies through content-based recommendations. Start with a movie you enjoy or choose an actor, genre, and director. Explore the results, try a random pick, and listen to background music while browsing.
 **Built with:** R · Shiny · text2vec  
 **Methods:** Text preprocessing · TF-IDF · Cosine similarity
 
-<!-- Add a screenshot of the app showing recommendation results here. -->
+<p align="center">
+  <img src="app-home.png" alt="Movie recommendation app home screen" width="650">
+</p>
 
-## Features
+## Explore the app
 
-- **Find similar movies:** Select a movie to receive five recommendations based on its metadata.
-- **Explore your preferences:** Combine a genre, actor, and director to find matching movies.
-- **Browse movie details:** Click a recommendation to view its synopsis, cast, director, and release information.
-- **Discover something unexpected:** Use the Lucky Draw button to explore a randomly selected movie.
+### 🎞️ Recommend by movie
 
-The interface also includes selectable background music and links for exploring movies by cast, director, or genre.
+Select a movie and click **Recommend** to receive five titles with similar metadata. Each result includes the movie title and its tagline, when available. Click a title to view more information.
+
+<p align="center">
+  <img src="recommend-by-movie.png" alt="Recommendations based on a selected movie" width="650">
+</p>
+
+### 🎲 Lucky Draw
+
+Click **Lucky Draw** in the lower-left corner to discover a randomly selected movie. The pop-up displays its title and tagline; **Learn More** opens its release date and synopsis.
+
+<p align="center">
+  <img src="lucky-draw.png" alt="A randomly selected movie in the Lucky Draw window" width="650">
+</p>
+
+### 🎵 Music Box
+
+The **Music Box** in the lower-right corner provides four background music options: **Love**, **Discovery**, **Suspense**, and **Joy**. Select a track and use the audio controls to play or pause it while exploring the app.
+
+## Explore movie details
+
+Click a recommended title to open its detail window. This includes the director, cast, genres, release date, synopsis, and additional information such as runtime, budget, and ratings.
+
+You can also follow connections within the movie collection:
+
+- **Director:** View other movies by the same director.
+- **Cast:** Browse movies featuring a selected actor.
+- **Genre:** Explore a selection of movies in the same category.
+- **Homepage:** Visit the movie’s website, where a link is available.
+
+<p align="center">
+  <img src="movie-details.png" alt="Movie details with clickable director, cast, and genre links" width="650">
+</p>
 
 ## Run locally
 
-The current application is intended to run from RStudio.
+The current application is intended to run from **RStudio**.
 
-1. Download or clone this repository.
-2. Open `project.Rproj` in RStudio.
-3. Install the packages used by the application and recommendation script:
+### 1. Download the repository
+
+Clone the repository or use **Code → Download ZIP** and extract the files. Open `project.Rproj` in RStudio.
+
+### 2. Install dependencies
+
+Run the following in the R console:
 
 ```r
 install.packages(c(
@@ -33,17 +66,21 @@ install.packages(c(
 ))
 ```
 
-4. Open `shiny.R` and click **Run App**.
+### 3. Launch the app
 
-Keep the working directory at the repository root so the app can find `movies.csv` and `movie_recommend_model.R`.
+Open `shiny.R` and click **Run App**.
 
-The model is built when the app starts, so the initial launch may take some time. Some visual assets are loaded from external websites and require an internet connection.
+Keep the working directory at the repository root so the app can locate `movies.csv`, `movie_recommend_model.R`, and the `www/` folder.
+
+The recommendation model is built at startup, so the first screen may take some time to load. Some images are hosted externally and require an internet connection.
+
+To end the session, click **Stop** in RStudio. Closing the browser tab alone does not stop the app.
 
 ## How it works
 
-### Movie representation
+### Preparing the movie collection
 
-The recommendation pipeline selects a subset of 1,000 movies using the ranking function in `movie_recommend_model.R`. It combines five metadata fields:
+The model script selects a subset of 1,000 movies using its ranking function. It combines five metadata fields into a text representation of each movie:
 
 - Genres
 - Keywords
@@ -51,29 +88,27 @@ The recommendation pipeline selects a subset of 1,000 movies using the ranking f
 - Cast
 - Director
 
-The text is cleaned and converted into TF-IDF vectors, which weight terms according to their frequency within a movie's metadata and across the collection.
+After text preprocessing, the app converts these representations into **TF-IDF vectors**. This weights terms according to their frequency within each movie’s metadata and across the collection.
 
-### Recommendations by movie
+### Finding similar movies
 
-The app compares the selected movie with other titles using cosine similarity between their TF-IDF vectors. It ranks the results and returns five recommendations, excluding the selected title.
+For recommendations based on a selected title, the app uses **cosine similarity** to compare that movie’s TF-IDF vector with the rest of the collection. It ranks the results and returns five recommendations, excluding the selected title.
 
-### Recommendations by preferences
+### Matching user preferences
 
-The app combines the selected genre, actor, and director into a text query. In the current implementation, it fits TF-IDF to the movie collection together with this query, then ranks movies by their similarity to the query.
+For recommendations based on actor, genre, and director, the app combines the selections into a text query. The current implementation fits TF-IDF to the movie collection together with this query, then calculates query-to-movie similarities to identify the five highest-ranked results.
 
-These preferences contribute to the similarity score rather than acting as strict filters.
+The approach uses movie metadata rather than users’ viewing histories or ratings.
 
-## Repository structure
+## Main files
 
-```text
-.
-├── shiny.R                  # Shiny interface and server logic
-├── movie_recommend_model.R  # Data preparation and recommendation functions
-├── movies.csv               # Movie metadata
-├── project.Rproj            # RStudio project
-├── www/                     # Local audio assets
-└── README.md
-```
+| File or folder | Purpose |
+|---|---|
+| `shiny.R` | Shiny interface and server logic |
+| `movie_recommend_model.R` | Data preparation, text representations, and recommendation functions |
+| `movies.csv` | Movie metadata used by the app |
+| `project.Rproj` | RStudio project |
+| `www/` | Local audio assets |
 
 ## Limitations and next steps
 
